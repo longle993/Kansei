@@ -14,18 +14,18 @@
         public string Type { get => type; set => type = value; }
         public string KanseiWord { get => kanseiWord; set => kanseiWord = value; }
         public double Point { get => point; set => point = value; }
-        public static List<double> tinhTrongSo(List<double> listKanseiPount)
+        public static List<double> tinhTrongSo(List<double> listKanseiPoint)
         {
             List<double> result = new List<double>();
-            double sum = listKanseiPount.Sum();
-            for (int i = 0; i < listKanseiPount.Count; i++)
+            double sum = listKanseiPoint.Sum();
+            for (int i = 0; i < listKanseiPoint.Count; i++)
             {
                 if (i == result.Count - 1)
                 {
-                    result.Add(1 - listKanseiPount.Sum());
+                    result.Add(1 - listKanseiPoint.Sum());
                 }
                 else
-                    result.Add((double)listKanseiPount[i] / sum);
+                    result.Add((double)listKanseiPoint[i] / sum);
             }
             return result;
         }

@@ -38,20 +38,22 @@ namespace KanseiAPI.Controllers
             }
         }
 
-        [HttpPost("",Name = "PostNewKansei")]
+        private static readonly List<string> type = new List<string>() { "TL01", "TL02", "TL03" };
+
+        [HttpPost("", Name = "PostNewKansei")]
         public async Task<ActionResult<ResponseInfo>> addKansei(List<Kansei> listKansei)
         {
             ResponseInfo response = new ResponseInfo();
             try
             {
                 listKansei.AddRange(listKansei);
+                List<List<double>> listType = new List<List<double>>();
                 //Kansei's weight
-                List<double> listType001 = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == "TL01").Select(p => p.Point).ToList());
-                List<double> listType002 = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == "TL02").Select(p => p.Point).ToList());
-                List<double> listType003 = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == "TL03").Select(p => p.Point).ToList());
+                for (int i = 0; i < type.Count; i++)
+                    listType[i] = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == type[i]).Select(p => p.Point).ToList());
 
                 //Point multiplied by weight
-                kanseiPreprocess = pointMultiplyW(listKansei, listType001, listType002, listType003);
+                kanseiPreprocess = pointMultiplyW(listKansei, listType);
                 response.data = kanseiPreprocess;
                 return await Task.FromResult(response);
             }
@@ -61,20 +63,38 @@ namespace KanseiAPI.Controllers
                 return await Task.FromResult(response);
             }
         }
-        private static List<Kansei> pointMultiplyW(List<Kansei> listKanseiType, List<double> w1, List<double> w2, List<double> w3)
+        private static List<Kansei> pointMultiplyW(List<Kansei> listKanseiType, List<List<double>> w)
         {
             int index1 = 0;
-            int index2 = 0;
-            int index3 = 0;
-            listKanseiType.ForEach(item =>
+
+            //listKanseiType.ForEach(item =>
+            //{
+            //    switch (item.Type)
+            //    {
+            //        case "TL01": item.Point *= w1[index1]; index1++; break;
+            //        case "TL02": item.Point *= w2[index2]; index2++; break;
+            //        case "TL03": item.Point *= w3[index3]; index3++; break;
+            //    }
+            //});
+
+            for (int i = 0; i < type.Count; i++)
             {
-                switch (item.Type)
+                index1 = 0;
+                listKanseiType.ForEach(item =>
                 {
-                    case "TL01": item.Point *= w1[index1]; index1++; break;
-                    case "TL02": item.Point *= w2[index2]; index2++; break;
-                    case "TL03": item.Point *= w3[index3]; index3++; break;
-                }
-            });
+                    //switch (item.Type)
+                    //{
+                    //    case "TL01": item.Point *= w1[index1]; index1++; break;
+                    //    case "TL02": item.Point *= w2[index2]; index2++; break;
+                    //    case "TL03": item.Point *= w3[index3]; index3++; break;
+                    //}
+                    if (item.Type == type[i])
+                    {
+                        item.Point *= w[i][index1];
+                        index1++;
+                    }
+                });
+            }
 
             return listKanseiType;
         }
