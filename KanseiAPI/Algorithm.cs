@@ -93,7 +93,7 @@ namespace KanseiAPI
                 mStudentsPoint.Add(new TOPSIS(mStudentsPoint, mCriteria, w).execute());
             }
 
-
+            List<double> ranking = new AHP(w, mCriteria, mStudentsPoint).execute();
         }
     }
 }
