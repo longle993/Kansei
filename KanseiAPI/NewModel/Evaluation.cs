@@ -18,6 +18,9 @@ namespace KanseiAPI.NewModel
         [BsonElement("listPoint")]
         private List<Kansei> _listKansei;
 
+        public List<double> Standardized;
+        public double mCC;
+
         public string Id { get => _id; set => _id = value; }
         public string StudentName { get => _studentName; set => _studentName = value; }
         public string TeacherId { get => _teacherId; set => _teacherId = value; }
@@ -31,6 +34,5 @@ namespace KanseiAPI.NewModel
             _listKansei = listKansei;
         }
         public Evaluation() { }
-
     }
 }
