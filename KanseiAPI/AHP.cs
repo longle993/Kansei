@@ -8,14 +8,14 @@ namespace KanseiAPI
         double[,] mCompareTable;
         List<double> finalResult;
 
-        public AHP(List<double> w, List<double> criteria)
+        public AHP(List<double> criteria)
         {
             this.mCompareTable = new double[criteria.Count, criteria.Count];
             this.finalResult = new List<double>();
             this.mCriteria = criteria;
         }
 
-        private List<double> Cal_mCompareTable()
+        public List<double> Cal_mCompareTable()
         {
             List<double> result = new List<double>();
             for (int i = 0; i < this.mCompareTable.GetLength(0); i++)
