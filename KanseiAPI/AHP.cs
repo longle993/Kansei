@@ -19,7 +19,7 @@ namespace KanseiAPI
         {
             List<double> result = new List<double>();
             for (int i = 0; i < this.mCompareTable.GetLength(0); i++)
-                for (int j = 0; j < this.mCompareTable.GetLength(1); i++)
+                for (int j = 0; j < this.mCompareTable.GetLength(1); j++)
                 {
                     if (i == j)
                         mCompareTable[i, j] = 1;

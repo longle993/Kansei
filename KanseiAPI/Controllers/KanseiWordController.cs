@@ -1,8 +1,10 @@
 ﻿using KanseiAPI.Interface;
-using KanseiAPI.Models;
+using KanseiAPI.NewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace KanseiAPI.Controllers
 {
@@ -38,45 +40,37 @@ namespace KanseiAPI.Controllers
             }
         }
 
-        [HttpPost("",Name = "PostNewKansei")]
-        public async Task<ActionResult<ResponseInfo>> addKansei(List<Kansei> listKansei)
+        [HttpPost("",Name = "Advise")]
+        public async Task<ActionResult<ResponseInfo>> AddPointAdvise(List<Kansei> listKansei)
         {
             ResponseInfo response = new ResponseInfo();
             try
             {
-                listKansei.AddRange(listKansei);
-                //Kansei's weight
-                List<double> listType001 = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == "TL01").Select(p => p.Point).ToList());
-                List<double> listType002 = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == "TL02").Select(p => p.Point).ToList());
-                List<double> listType003 = Kansei.tinhTrongSo(listKansei.Where(p => p.Type == "TL03").Select(p => p.Point).ToList());
+                var client = new MongoClient("mongodb+srv://kanseidemo123:kanseidemo123@cluster0.eetjn7s.mongodb.net/?retryWrites=true&w=majority");
+                var database = client.GetDatabase("Kansei");
+                var teacherTable = database.GetCollection<Teacher>("Teacher");
+                List<Teacher> teachers = teacherTable.Find(new BsonDocument()).ToList();
 
-                //Point multiplied by weight
-                kanseiPreprocess = pointMultiplyW(listKansei, listType001, listType002, listType003);
-                response.data = kanseiPreprocess;
+                var criteriaTable = database.GetCollection<Criteria>("Criteria");
+                List<Criteria> criterias = criteriaTable.Find(new BsonDocument()).ToList();
+
+                var evaluationTable = database.GetCollection<Evaluation>("Evaluate");
+                List<Evaluation> evaluations = evaluationTable.Find(new BsonDocument()).ToList();
+
+                Algorithm algorithm = new Algorithm(evaluations, criterias,teachers,listKansei);
+                algorithm.execute();
+
+                response.statusCode = System.Net.HttpStatusCode.OK;
+                response.data = algorithm.MMapResult;
                 return await Task.FromResult(response);
             }
             catch (Exception e)
             {
                 response.statusCode = System.Net.HttpStatusCode.BadRequest;
+                Console.WriteLine(e.ToString());
                 return await Task.FromResult(response);
             }
         }
-        private static List<Kansei> pointMultiplyW(List<Kansei> listKanseiType, List<double> w1, List<double> w2, List<double> w3)
-        {
-            int index1 = 0;
-            int index2 = 0;
-            int index3 = 0;
-            listKanseiType.ForEach(item =>
-            {
-                switch (item.Type)
-                {
-                    case "TL01": item.Point *= w1[index1]; index1++; break;
-                    case "TL02": item.Point *= w2[index2]; index2++; break;
-                    case "TL03": item.Point *= w3[index3]; index3++; break;
-                }
-            });
-
-            return listKanseiType;
-        }
+        
     }
 }

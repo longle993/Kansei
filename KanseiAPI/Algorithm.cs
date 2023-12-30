@@ -10,6 +10,7 @@ namespace KanseiAPI
         private List<Evaluation> mStudentPoints;
         private List<Criteria> mCriteria;
         private List<Kansei> mListKansei;
+        private Dictionary<string, string> mMapResult;
 
         /*  
             students: Danh sách điểm đánh giá
@@ -22,7 +23,10 @@ namespace KanseiAPI
             this.mStudentPointsList = students;
             this.mListKansei = listKansei;
             this.mStudentPoints = new List<Evaluation>();
+            this.mMapResult = new Dictionary<string, string>();
         }
+
+        public Dictionary<string, string> MMapResult { get => mMapResult; }
 
         public void execute()
         {
@@ -42,6 +46,11 @@ namespace KanseiAPI
             });
 
             List<double> ranking = new AHP(points).Cal_mCompareTable();
+
+            for(int i = 0; i< mTeachers.Count; i++)
+            {
+                mMapResult.Add(mTeachers[i].Name, ranking[i].ToString());
+            }
         }
     }
 }

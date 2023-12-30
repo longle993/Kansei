@@ -15,8 +15,8 @@ namespace KanseiAPI
             this.mCriteria = criteria;
             mAStar = new double[criteria.Count];
             mAMinus = new double[criteria.Count];
-            mSStar = new double[criteria.Count];
-            mSMinus = new double[criteria.Count];
+            mSStar = new double[students.Count];
+            mSMinus = new double[students.Count];
             mWeights = w;
         }
 
@@ -26,12 +26,16 @@ namespace KanseiAPI
             {
                 double sum = 0.0f;
                 for (int j = 0; j < mStudents.Count; j++)
+                {
                     sum += mStudents[j].ListKansei[i].Point * mStudents[j].ListKansei[i].Point;
+                }
 
                 sum = Math.Sqrt(sum);
+                    for (int j = 0; j < mStudents.Count; j++)
+                    {
+                        mStudents[j].Standardized.Add(mStudents[j].ListKansei[i].Point / sum);
 
-                for (int j = 0; j < mStudents.Count; j++)
-                    mStudents[j].Standardized[i] = mStudents[j].ListKansei[i].Point / sum;
+                    }
             }
         }
 
@@ -76,9 +80,17 @@ namespace KanseiAPI
 
         private void Cal_mCC()
         {
-            for (int i = 0; i < this.mStudents.Count; i++)
+
+            try
             {
-                this.mStudents[i].mCC = this.mSMinus[i] / (this.mSMinus[i] + this.mSStar[i]);
+                for (int i = 0; i < this.mStudents.Count; i++)
+                {
+                    this.mStudents[i].mCC = this.mSMinus[i] / (this.mSMinus[i] + this.mSStar[i]);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
 
@@ -88,7 +100,7 @@ namespace KanseiAPI
             Cal_AStarAndAMinus();
             Cal_SStarAndSMinus();
             Cal_mCC();
-            mStudents.Sort();
+            mStudents.OrderBy(p=>p.mCC);
 
             return mStudents[mStudents.Count / 2];
         }
