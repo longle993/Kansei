@@ -28,14 +28,14 @@ namespace KanseiAPI
                         double val = (float)mCriteria[i] / mCriteria[j],
                             exten = (mCriteria[i] % mCriteria[j]) / (float)mCriteria[j];
 
-                        if (exten < 0.5f)
-                        {
-                            val = (int)val;
-                        }
-                        else
-                        {
-                            val = (int)val + 1.0f;
-                        }
+                        //if (exten < 0.5f)
+                        //{
+                        //    val = (int)val;
+                        //}
+                        //else
+                        //{
+                        //    val = (int)val + 1.0f;
+                        //}
 
                         mCompareTable[i, j] = val;
                     }
@@ -57,6 +57,7 @@ namespace KanseiAPI
             for (int i = 0; i < this.mCompareTable.GetLength(0); i++)
                 for (int j = 0; j < this.mCompareTable.GetLength(1); j++)
                     resTemp[i, j] = mCompareTable[i, j] / sumCol[j];
+
             for (int i = 0; i < resTemp.GetLength(0); i++)
             {
                 double ava = 0;

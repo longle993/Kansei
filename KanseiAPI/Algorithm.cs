@@ -30,27 +30,69 @@ namespace KanseiAPI
 
         public void execute()
         {
+            List<double> w = new List<double>();
+            List<double> criteriaPoint = new List<double>();
 
-            List<double> w = new AHP(mListKansei.Select(p => p.Point).ToList()).Cal_mCompareTable();
+            for (int i = 0; i < mCriteria.Count; i++)
+            {
+                List<double> kanseiPointWithCriteria = mListKansei.Where(w => w.Type == mCriteria[i].Id).Select(p => p.Point).ToList();
+                List<double> temp = new AHP(kanseiPointWithCriteria).Cal_mCompareTable();
+                double valTemp = 0.0f;
+                for (int j = 0; j < temp.Count; j++)
+                    valTemp += temp[j] * kanseiPointWithCriteria[j] / temp.Count;
+                criteriaPoint.Add(valTemp);
+            }
+
+            w = new AHP(criteriaPoint).Cal_mCompareTable();
 
             for (int i = 0; i < mTeachers.Count; i++)
             {
-                mStudentPoints.Add(new TOPSIS(mStudentPointsList, w, mCriteria).execute());
+                mStudentPoints.Add(new TOPSIS(mStudentPointsList.Where(p => p.TeacherId == mTeachers[i].Id).ToList(),
+                                   w, mCriteria).execute());
             }
 
-            List<double> points = new List<double>();
+            List<List<double>> pointsCriteria = new List<List<double>>();
 
-            mStudentPoints.ForEach(evaluation =>
+            for (int i = 0; i < mStudentPoints.Count; i++)
             {
-                evaluation.ListKansei.ForEach(kansei => points.Add(kansei.Point));
-            });
-
-            List<double> ranking = new AHP(points).Cal_mCompareTable();
-
-            for(int i = 0; i< mTeachers.Count; i++)
-            {
-                mMapResult.Add(mTeachers[i].Name, ranking[i].ToString());
+                List<double> points = new List<double>();
+                foreach (var criteria in mCriteria)
+                {
+                    List<double> evalPoint = mStudentPoints[i].ListKansei.Where(kansei => kansei.Type == criteria.Id).ToList().Select(k => k.Point).ToList();
+                    List<double> temp = new AHP(evalPoint).Cal_mCompareTable();
+                    double average = 0;
+                    for (int j = 0; j < evalPoint.Count; j++)
+                        average += evalPoint[j] * temp[j] / evalPoint.Count;
+                    points.Add(average);
+                }
+                pointsCriteria.Add(points);
             }
+
+            List<List<double>> finalTeachersCriteria = new List<List<double>>();
+
+            for (int i = 0; i < mCriteria.Count; i++)
+            {
+                List<double> teachersPoint = new List<double>();
+                for (int j = 0; j < pointsCriteria.Count; j++)
+                    teachersPoint.Add(pointsCriteria[j][i]);
+                finalTeachersCriteria.Add(new AHP(teachersPoint).Cal_mCompareTable());
+            }
+
+            // this is the final ranking point
+            double[] teachersFinalPoint = new double[finalTeachersCriteria.Count];
+
+            for (int i = 0; i < finalTeachersCriteria.Count; i++)
+                for (int j = 0; j < w.Count; j++)
+                    teachersFinalPoint[i] += finalTeachersCriteria[i][j] * w[j];
+
+            // Multiply matrix finalCriteriasPoint with Weight (w array)
+
+            //List<double> ranking = new AHP(points).Cal_mCompareTable();
+
+            //for (int i = 0; i < mTeachers.Count; i++)
+            //{
+            //    mMapResult.Add(mTeachers[i].Name, ranking[i].ToString());
+            //}
         }
     }
 }
